@@ -1,29 +1,26 @@
-import { createContext, useContext, useState } from "react";
+import { AuthContext, useProvideAuth, useAuth } from "./hooks/auth";
 import { ChakraProvider } from "@chakra-ui/react";
 import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link,
   Redirect,
-  useHistory,
-  useLocation,
 } from "react-router-dom";
+
+import LoginPage from "./pages/login";
 
 const App = () => {
   return (
     <ProvideAuth>
       <ChakraProvider>
         <Router>
-          <AuthButton />
-
           <Switch>
             <Route exact path="/">
               <h1>Home page.</h1>
             </Route>
 
             <Route path="/login">
-              <h1>Login page</h1>
+              <LoginPage />
             </Route>
 
             <PrivateRoute path="/protected">
@@ -36,47 +33,10 @@ const App = () => {
   );
 };
 
-const authContext = createContext();
-
 const ProvideAuth = ({ children }) => {
   const auth = useProvideAuth();
 
-  return <authContext.Provider value={auth}>{children}</authContext.Provider>;
-};
-
-const AuthButton = () => {
-  let history = useHistory();
-  let auth = useAuth();
-
-  return auth.user ? <p>Welcome</p> : <p>You are not logged in.</p>;
-};
-
-const useAuth = () => {
-  return useContext(authContext);
-};
-
-const useProvideAuth = () => {
-  const [user, setUser] = useState(null);
-
-  const signin = (cb) => {
-    return () => {
-      setUser("user");
-      cb();
-    };
-  };
-
-  const signout = (cb) => {
-    return () => {
-      setUser(null);
-      cb();
-    };
-  };
-
-  return {
-    user,
-    signin,
-    signout,
-  };
+  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 };
 
 const PrivateRoute = ({ children, ...otherParams }) => {
